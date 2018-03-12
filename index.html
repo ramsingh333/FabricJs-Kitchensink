@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="kitchensink">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Living Room Set up</title>
+    <link href="css/master.css" rel="stylesheet" />
+    <link href="css/prism.css" rel="stylesheet" />
+    <link href="css/bootstrap.css" rel="stylesheet" />
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        pre {
+            margin-left: 15px !important;
+        }
+    </style>
+
+    <script src="lib/prism.js"></script>
+    <script>
+        (function () {
+            // var fabricUrl = 'http://fabricjs.com/lib/fabric.js';
+            var fabricUrl = '../lib/fabric.js';
+            if (document.location.search.indexOf('load_fabric_from=') > -1) {
+                var match = document.location.search.match(/load_fabric_from=([^&]*)/);
+                if (match && match[1]) {
+                    fabricUrl = match[1];
+                }
+            }
+            document.write('<script src="' + fabricUrl + '"><\/script>');
+        })();
+    </script>
+    <!--<script src="js/master.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
+    <script src="https://files.codepedia.info/files/uploads/iScripts/html2canvas.js"></script>
+</head>
+<body>
+
+    <div id="bd-wrapper" ng-controller="CanvasControls">
+        <h2 class="col-md-5 col-xs-12">Living Room Set Up &middot;</h2>
+
+        <div class="col-md-6 col-xs-12 text-right btnsGroup">
+            <button class="btn btn-danger clear" ng-click="confirmClear()">Clear canvas</button>
+            <button class="btn btn-object-action" id="remove-selected"
+                    ng-click="removeSelected()">
+                Remove selected object
+            </button>
+            <button class="btn btn-success" id="rasterize" ng-click="rasterize()">
+                Generate and Download Image
+            </button>
+        </div>
+
+        <script src="lib/jquery.js"></script>
+        <script src="lib/bootstrap.js"></script>
+
+        <script src="js/paster.js"></script>
+
+        <link href="css/bootstrap.css" rel="stylesheet" />
+        <link href="css/kitchensink.css" rel="stylesheet" />
+
+        <div class="col-md-7 col-xs-8" id="canvas-wrapper">
+            <canvas id="canvas" width="800" height="600"></canvas>
+
+        </div>
+
+        <div id="commands" class="col-md-4 col-xs-12" ng-click="maybeLoadShape($event)">
+
+            <!--<ul class="nav nav-tabs">
+                <li class="active"><a href="#simple-shapes" data-toggle="tab">Choose What you want to do</a></li>
+            </ul>-->
+
+            <div class="tab-content itemIcon ">
+                <div class="tab-pane active" id="simple-shapes">
+                    <p>
+                        <h4>Upload Background Image</h4>
+                        <img src="" style="display:none" id="my-image" />
+
+                        <input type='file' id="imgInp" />
+
+                    </p>
+
+                    <ul>
+                        <li class="row" ng-click="addImage1()">
+                            <span class="col-sm-2 col-xs-3"><img src="assets/audio_speakers.png" /></span>
+                            <span class="col-sm-4"><a class="image1">audio speakers</a></span>
+                        </li>
+                        <li class="row" ng-click="addImage2()">
+                            <span class="col-sm-2 col-xs-3">
+                                <img src="assets/Flat-Screen-TV.jpg" />
+                            </span>
+                            <span class="col-sm-4"> <a class="image2">Flat Screen TV</a></span>
+                        </li>
+                        <li class="row" ng-click="addImage3()">
+                            <span class="col-sm-2 col-xs-3">
+                                <img src="assets/Soundbar.png" />
+                            </span>
+                            <span class="col-sm-4"> <a class="image3">Soundbar</a></span>
+                        </li>
+                        <li class="row" ng-click="addImage4()">
+                            <span class="col-sm-2 col-xs-3">
+                                <img src="assets/camera.png" />
+                            </span>
+                            <span class="col-sm-4"> <a class="image4">Cctv</a></span>
+                        </li>
+                        <li class="row" ng-click="addImage5()">
+                            <span class="col-sm-2 col-xs-3">
+                                <img src="assets/Wireconceal.png" />
+                            </span>
+                            <span class="col-sm-4"> <a class="image5">Wire Conceal</a></span>
+                        </li>
+                    </ul>
+
+
+
+                </div>
+            </div>
+        </div>
+        <div class="row previewSection">
+            <strong style="font-size:20px; padding-left:30px;">  Preview</strong>
+            <div class="col-md-7 col-xs-7 marAuto">
+                
+                <div id="dvexport" style="background-repeat:no-repeat;margin:auto">
+                    <img id="canvasRasterizer" /><br />
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            var kitchensink = {};
+            var canvas = new fabric.Canvas('canvas');
+        </script>
+
+
+        <script src="js/kitchensink/utils.js"></script>
+        <script src="js/kitchensink/app_config.js"></script>
+        <script src="js/kitchensink/controller.js"></script>
+        <script>
+
+            (function () {
+                function renderVieportBorders() {
+                    var ctx = canvas.getContext();
+
+                    ctx.save();
+
+                    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+
+                    ctx.fillRect(
+                      canvas.viewportTransform[4],
+                      canvas.viewportTransform[5],
+                      canvas.getWidth() * canvas.getZoom(),
+                      canvas.getHeight() * canvas.getZoom());
+
+                    ctx.setLineDash([5, 5]);
+
+                    ctx.strokeRect(
+                      canvas.viewportTransform[4],
+                      canvas.viewportTransform[5],
+                      canvas.getWidth() * canvas.getZoom(),
+                      canvas.getHeight() * canvas.getZoom());
+
+                    ctx.restore();
+                }
+                canvas.on('object:selected', function (opt) {
+                    var target = opt.target;
+                    if (target._cacheCanvas) {
+
+                    }
+                })
+
+
+                canvas.on('mouse:wheel', function (opt) {
+                    var e = opt.e;
+                    if (!e.ctrlKey) {
+                        return;
+                    }
+                    var newZoom = canvas.getZoom() + e.deltaY / 300;
+                    canvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, newZoom);
+
+                    renderVieportBorders();
+                    e.preventDefault();
+                    return false;
+                });
+
+                var viewportLeft = 0,
+                    viewportTop = 0,
+                    mouseLeft,
+                    mouseTop,
+                    _drawSelection = canvas._drawSelection,
+                    isDown = false;
+
+                canvas.on('mouse:down', function (options) {
+                    if (options.e.altKey) {
+                        isDown = true;
+
+                        viewportLeft = canvas.viewportTransform[4];
+                        viewportTop = canvas.viewportTransform[5];
+
+                        mouseLeft = options.e.x;
+                        mouseTop = options.e.y;
+                        _drawSelection = canvas._drawSelection;
+                        canvas._drawSelection = function () { };
+                        renderVieportBorders();
+                    }
+                });
+
+                canvas.on('mouse:move', function (options) {
+                    if (options.e.altKey && isDown) {
+                        var currentMouseLeft = options.e.x;
+                        var currentMouseTop = options.e.y;
+
+                        var deltaLeft = currentMouseLeft - mouseLeft,
+                            deltaTop = currentMouseTop - mouseTop;
+
+                        canvas.viewportTransform[4] = viewportLeft + deltaLeft;
+                        canvas.viewportTransform[5] = viewportTop + deltaTop;
+
+                        canvas.renderAll();
+                        renderVieportBorders();
+                    }
+                });
+
+                canvas.on('mouse:up', function () {
+                    canvas._drawSelection = _drawSelection;
+                    isDown = false;
+                });
+            })();
+
+        </script>
+
+    </div>
+
+    <script>
+        (function () {
+            var mainScriptEl = document.getElementById('main');
+            if (!mainScriptEl) return;
+            var preEl = document.createElement('pre');
+            var codeEl = document.createElement('code');
+
+            codeEl.innerHTML = mainScriptEl.innerHTML;
+            codeEl.className = 'language-javascript';
+            preEl.appendChild(codeEl);
+            document.getElementById('bd-wrapper').appendChild(preEl);
+        })();
+    </script>
+
+    <script>
+        (function () {
+            fabric.util.addListener(fabric.window, 'load', function () {
+                var canvas = this.__canvas || this.canvas,
+                    canvases = this.__canvases || this.canvases;
+
+                canvas && canvas.calcOffset && canvas.calcOffset();
+
+                if (canvases && canvases.length) {
+                    for (var i = 0, len = canvases.length; i < len; i++) {
+                        canvases[i].calcOffset();
+                    }
+                }
+            });
+        })();
+    </script>
+
+    <script>
+        //var canvas = new fabric.Canvas('canvas');
+        $("#imgInp").change(function () {
+            readURL(this);
+        });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#canvas').css("background-image", "url(" + e.target.result + ")");
+                    var div = $('[id$=dvexport]');
+                    div.css("background-image", "url(" + e.target.result + ")");
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
